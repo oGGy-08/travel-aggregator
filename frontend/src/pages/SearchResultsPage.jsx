@@ -2,14 +2,16 @@ import { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { addSegment } from '../store/packageSlice'
+import { loadMore } from '../store/searchSlice'
 import ResultCard from '../components/ResultCard'
 import FilterPanel from '../components/FilterPanel'
 import SkeletonCard from '../components/SkeletonCard'
+import PriceCalendar from '../components/PriceCalendar'
 
 export default function SearchResultsPage() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { filteredResults, loading, error, searchType } = useSelector((state) => state.search)
+  const { filteredResults, paginatedResults, loading, error, searchType, page, pageSize } = useSelector((state) => state.search)
   const { segments } = useSelector((state) => state.packages)
   const [toast, setToast] = useState(null)
 
@@ -62,6 +64,11 @@ export default function SearchResultsPage() {
             </div>
           )}
 
+          {/* Price Calendar */}
+          {searchType === 'FLIGHT' && !loading && filteredResults.length > 0 && (
+            <PriceCalendar origin={filteredResults[0]?.origin_airport} destination={filteredResults[0]?.destination_airport} />
+          )}
+
           {/* Loading skeletons */}
           {loading && (
             <div className="space-y-3">
@@ -72,10 +79,20 @@ export default function SearchResultsPage() {
           {/* Results */}
           {!loading && (
             <div className="space-y-3">
-              {filteredResults.map((result) => (
+              {(paginatedResults.length > 0 ? paginatedResults : filteredResults).map((result) => (
                 <ResultCard key={result.id} result={result} type={searchType}
                   onAddToPackage={handleAddToPackage} />
               ))}
+            </div>
+          )}
+
+          {/* Load More button */}
+          {!loading && paginatedResults.length < filteredResults.length && (
+            <div className="text-center mt-6">
+              <button onClick={() => dispatch(loadMore())}
+                className="bg-white border border-gray-300 text-gray-700 px-8 py-3 rounded-xl font-medium hover:bg-gray-50 hover:border-primary-300 transition-all">
+                Load More ({filteredResults.length - paginatedResults.length} remaining)
+              </button>
             </div>
           )}
 

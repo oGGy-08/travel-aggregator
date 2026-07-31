@@ -41,7 +41,7 @@ class PackageEngine:
         for hotel in hotel_segments:
             check_in = self._parse_dt(hotel['start_datetime'])
             check_out = self._parse_dt(hotel['end_datetime'])
-            if arrival_time and check_in < arrival_time.replace(hour=0, minute=0, second=0):
+            if arrival_time and check_in < arrival_time.replace(hour=0, minute=0, second=0, tzinfo=arrival_time.tzinfo):
                 pass  # Hotel can start same day
             if departure_time and check_out > departure_time:
                 conflicts.append({
@@ -101,8 +101,17 @@ class PackageEngine:
         }
 
     def _parse_dt(self, dt_val):
+        from datetime import timezone as tz
         if isinstance(dt_val, datetime):
+            if dt_val.tzinfo is None:
+                return dt_val.replace(tzinfo=tz.utc)
             return dt_val
         if isinstance(dt_val, str):
-            return datetime.fromisoformat(dt_val.replace('Z', '+00:00'))
-        return datetime.min
+            try:
+                dt = datetime.fromisoformat(dt_val.replace('Z', '+00:00'))
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=tz.utc)
+                return dt
+            except (ValueError, TypeError):
+                return datetime.min.replace(tzinfo=tz.utc)
+        return datetime.min.replace(tzinfo=tz.utc)

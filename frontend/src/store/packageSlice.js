@@ -22,6 +22,26 @@ const packageSlice = createSlice({
     removeSegment: (state, action) => {
       state.segments = state.segments.filter((_, i) => i !== action.payload)
     },
+    moveSegmentUp: (state, action) => {
+      const idx = action.payload
+      if (idx > 0) {
+        const temp = state.segments[idx]
+        state.segments[idx] = state.segments[idx - 1]
+        state.segments[idx - 1] = temp
+      }
+    },
+    moveSegmentDown: (state, action) => {
+      const idx = action.payload
+      if (idx < state.segments.length - 1) {
+        const temp = state.segments[idx]
+        state.segments[idx] = state.segments[idx + 1]
+        state.segments[idx + 1] = temp
+      }
+    },
+    updateSegment: (state, action) => {
+      const { index, data } = action.payload
+      state.segments[index] = { ...state.segments[index], ...data }
+    },
     clearPackage: (state) => { state.segments = []; state.currentPackage = null; state.conflicts = [] },
   },
   extraReducers: (builder) => {
@@ -39,5 +59,5 @@ const packageSlice = createSlice({
   },
 })
 
-export const { addSegment, removeSegment, clearPackage } = packageSlice.actions
+export const { addSegment, removeSegment, moveSegmentUp, moveSegmentDown, updateSegment, clearPackage } = packageSlice.actions
 export default packageSlice.reducer
