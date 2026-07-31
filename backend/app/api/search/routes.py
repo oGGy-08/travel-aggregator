@@ -172,6 +172,25 @@ def sort_results():
     return jsonify({'results': sorted_results, 'count': len(sorted_results)})
 
 
+@search_bp.route('/cache-stats', methods=['GET'])
+def cache_stats():
+    """View Redis cache status and stored keys."""
+    from ...services.cache import get_cache_stats
+    from ...extensions import redis_client
+    stats = get_cache_stats()
+    try:
+        keys = redis_client.keys('search:*')
+        key_details = []
+        for key in keys[:20]:
+            ttl = redis_client.ttl(key)
+            key_details.append({'key': key, 'ttl_seconds': ttl})
+        stats['cached_searches'] = key_details
+        stats['total_cached'] = len(keys)
+    except Exception as e:
+        stats['error'] = str(e)
+    return jsonify(stats)
+
+
 @search_bp.route('/cities', methods=['GET'])
 def search_cities():
     """Return matching cities for autocomplete."""
