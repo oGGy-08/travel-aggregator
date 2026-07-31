@@ -70,11 +70,11 @@ export default function SearchForm() {
             </button>
           </div>
           <select value={cabinClass} onChange={(e) => setCabinClass(e.target.value)}
-            className="text-sm border border-gray-300 rounded-lg px-3 py-1.5">
-            <option value="economy">Economy</option>
-            <option value="premium_economy">Premium Economy</option>
-            <option value="business">Business</option>
-            <option value="first">First Class</option>
+            className="text-sm border border-gray-300 rounded-xl px-4 py-2 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500 focus:border-transparent appearance-none cursor-pointer hover:border-primary-300 transition-all bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%236b7280%22%20d%3D%22M6%208L1%203h10z%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_12px_center] pr-8">
+            <option value="economy">✈️ Economy</option>
+            <option value="premium_economy">💺 Premium Economy</option>
+            <option value="business">🥂 Business</option>
+            <option value="first">👑 First Class</option>
           </select>
         </div>
       )}

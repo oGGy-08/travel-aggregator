@@ -1,6 +1,7 @@
+import { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { removeSegment, clearPackage, buildPackage } from '../store/packageSlice'
+import { removeSegment, clearPackage, buildPackage, moveSegmentUp, moveSegmentDown, updateSegment } from '../store/packageSlice'
 
 const TYPE_ICONS = { FLIGHT: '✈️', BUS: '🚌', HOTEL: '🏨' }
 const TYPE_COLORS = { FLIGHT: 'bg-blue-100 text-blue-700', BUS: 'bg-green-100 text-green-700', HOTEL: 'bg-purple-100 text-purple-700' }
@@ -9,6 +10,8 @@ export default function PackageBuilderPage() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { segments, currentPackage, loading, error } = useSelector((state) => state.packages)
+  const [editingIdx, setEditingIdx] = useState(null)
+  const [editData, setEditData] = useState({})
 
   const handleBuild = () => {
     if (segments.length < 2) return
@@ -51,36 +54,86 @@ export default function PackageBuilderPage() {
             <div className="space-y-0">
               {segments.map((seg, idx) => (
                 <div key={idx} className="relative">
-                  {/* Timeline connector */}
                   {idx < segments.length - 1 && (
                     <div className="absolute left-6 top-16 w-0.5 h-6 bg-gray-200"></div>
                   )}
-                  <div className="bg-white border border-gray-200 rounded-xl p-4 flex items-center justify-between hover:shadow-sm transition-shadow">
-                    <div className="flex items-center space-x-4">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl ${TYPE_COLORS[seg.segment_type] || 'bg-gray-100'}`}>
-                        {TYPE_ICONS[seg.segment_type] || '📍'}
-                      </div>
-                      <div>
+                  <div className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-shadow">
+                    {/* Normal view */}
+                    {editingIdx !== idx ? (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          {/* Reorder buttons */}
+                          <div className="flex flex-col space-y-0.5">
+                            <button onClick={() => dispatch(moveSegmentUp(idx))} disabled={idx === 0}
+                              className="text-gray-400 hover:text-primary-600 disabled:opacity-30 text-xs p-0.5">▲</button>
+                            <button onClick={() => dispatch(moveSegmentDown(idx))} disabled={idx === segments.length - 1}
+                              className="text-gray-400 hover:text-primary-600 disabled:opacity-30 text-xs p-0.5">▼</button>
+                          </div>
+                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl ${TYPE_COLORS[seg.segment_type] || 'bg-gray-100'}`}>
+                            {TYPE_ICONS[seg.segment_type] || '📍'}
+                          </div>
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              <span className="font-semibold text-gray-900">{seg.summary}</span>
+                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${TYPE_COLORS[seg.segment_type]}`}>
+                                {seg.segment_type}
+                              </span>
+                            </div>
+                            <div className="text-sm text-gray-500 mt-0.5">
+                              {seg.origin && seg.destination ? `${seg.origin} → ${seg.destination}` : seg.provider}
+                            </div>
+                          </div>
+                        </div>
                         <div className="flex items-center space-x-2">
-                          <span className="font-semibold text-gray-900">{seg.summary}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${TYPE_COLORS[seg.segment_type]}`}>
-                            {seg.segment_type}
+                          <span className="font-bold text-primary-600">
+                            ₹{Math.round(seg.price_amount || 0).toLocaleString('en-IN')}
                           </span>
-                        </div>
-                        <div className="text-sm text-gray-500 mt-0.5">
-                          {seg.origin && seg.destination ? `${seg.origin} → ${seg.destination}` : seg.provider}
+                          <button onClick={() => { setEditingIdx(idx); setEditData({ ...seg }) }}
+                            className="w-8 h-8 rounded-full bg-blue-50 text-blue-500 hover:bg-blue-100 flex items-center justify-center text-sm" title="Edit">
+                            ✎
+                          </button>
+                          <button onClick={() => dispatch(removeSegment(idx))}
+                            className="w-8 h-8 rounded-full bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 flex items-center justify-center">
+                            ×
+                          </button>
                         </div>
                       </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <span className="font-bold text-primary-600">
-                        ₹{Math.round(seg.price_amount || 0).toLocaleString('en-IN')}
-                      </span>
-                      <button onClick={() => dispatch(removeSegment(idx))}
-                        className="w-8 h-8 rounded-full bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 flex items-center justify-center transition-colors">
-                        ×
-                      </button>
-                    </div>
+                    ) : (
+                      /* Edit view */
+                      <div className="space-y-3 animate-slide-up">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-semibold text-gray-700">Editing Segment</span>
+                          <div className="flex space-x-2">
+                            <button onClick={() => { dispatch(updateSegment({ index: idx, data: editData })); setEditingIdx(null) }}
+                              className="text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700">Save</button>
+                            <button onClick={() => setEditingIdx(null)}
+                              className="text-xs bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-300">Cancel</button>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-xs text-gray-500">Name / Summary</label>
+                            <input value={editData.summary || ''} onChange={(e) => setEditData({ ...editData, summary: e.target.value })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm mt-1" />
+                          </div>
+                          <div>
+                            <label className="text-xs text-gray-500">Price (₹)</label>
+                            <input type="number" value={editData.price_amount || ''} onChange={(e) => setEditData({ ...editData, price_amount: parseFloat(e.target.value) || 0 })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm mt-1" />
+                          </div>
+                          <div>
+                            <label className="text-xs text-gray-500">Origin</label>
+                            <input value={editData.origin || ''} onChange={(e) => setEditData({ ...editData, origin: e.target.value })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm mt-1" />
+                          </div>
+                          <div>
+                            <label className="text-xs text-gray-500">Destination</label>
+                            <input value={editData.destination || ''} onChange={(e) => setEditData({ ...editData, destination: e.target.value })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm mt-1" />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

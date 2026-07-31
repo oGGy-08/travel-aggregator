@@ -1,0 +1,16 @@
+{
+  "name": "TravelBundler",
+  "short_name": "TravelBundler",
+  "description": "Compare flights, buses & hotels across India. Bundle and save.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

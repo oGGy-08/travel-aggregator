@@ -27,12 +27,26 @@ const searchSlice = createSlice({
     filters: {},
     sortBy: 'price_amount',
     sortOrder: 'asc',
+    page: 1,
+    pageSize: 15,
+    paginatedResults: [],
   },
   reducers: {
     setSearchType: (state, action) => { state.searchType = action.payload },
     setFilters: (state, action) => { state.filters = action.payload },
     setSortBy: (state, action) => { state.sortBy = action.payload },
     setSortOrder: (state, action) => { state.sortOrder = action.payload },
+    setPage: (state, action) => {
+      state.page = action.payload
+      const start = (state.page - 1) * state.pageSize
+      state.paginatedResults = state.filteredResults.slice(start, start + state.pageSize)
+    },
+    loadMore: (state) => {
+      state.page += 1
+      const start = 0
+      const end = state.page * state.pageSize
+      state.paginatedResults = state.filteredResults.slice(start, end)
+    },
     applyLocalFilters: (state) => {
       let results = [...state.results]
       const f = state.filters
@@ -53,6 +67,8 @@ const searchSlice = createSlice({
         return state.sortOrder === 'asc' ? (a[key] ?? 0) - (b[key] ?? 0) : (b[key] ?? 0) - (a[key] ?? 0)
       })
       state.filteredResults = results
+      state.page = 1
+      state.paginatedResults = results.slice(0, state.pageSize)
     },
   },
   extraReducers: (builder) => {
@@ -61,6 +77,8 @@ const searchSlice = createSlice({
       state.loading = false
       state.results = action.payload.results
       state.filteredResults = action.payload.results
+      state.page = 1
+      state.paginatedResults = action.payload.results.slice(0, state.pageSize)
     }
     const handleRejected = (state, action) => { state.loading = false; state.error = action.error.message }
     builder
@@ -76,5 +94,5 @@ const searchSlice = createSlice({
   },
 })
 
-export const { setSearchType, setFilters, setSortBy, setSortOrder, applyLocalFilters } = searchSlice.actions
+export const { setSearchType, setFilters, setSortBy, setSortOrder, applyLocalFilters, setPage, loadMore } = searchSlice.actions
 export default searchSlice.reducer

@@ -13,6 +13,9 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/search" element={<SearchResultsPage />} />
+          <Route path="/flights/:origin-:destination/:date" element={<SearchResultsPage />} />
+          <Route path="/buses/:origin-:destination/:date" element={<SearchResultsPage />} />
+          <Route path="/hotels/:destination/:checkin/:checkout" element={<SearchResultsPage />} />
           <Route path="/packages" element={<PackageBuilderPage />} />
           <Route path="/booking" element={<BookingPage />} />
         </Routes>

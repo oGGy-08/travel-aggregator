@@ -143,22 +143,24 @@ export default function FilterPanel() {
 
       {/* Sort */}
       <div>
-        <label className="text-sm text-gray-600">Sort By</label>
-        <select value={sortBy} onChange={(e) => setLocalSortBy(e.target.value)}
-          className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
-          <option value="price_amount">Price</option>
-          <option value="duration_minutes">Duration</option>
-          <option value="rating">Rating</option>
-        </select>
+        <label className="text-sm font-medium text-gray-700 mb-2 block">Sort By</label>
+        <div className="relative">
+          <select value={sortBy} onChange={(e) => setLocalSortBy(e.target.value)}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500 focus:border-transparent appearance-none cursor-pointer hover:border-primary-300 transition-all bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%236b7280%22%20d%3D%22M6%208L1%203h10z%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_12px_center] pr-8">
+            <option value="price_amount">💰 Price</option>
+            <option value="duration_minutes">⏱️ Duration</option>
+            <option value="rating">⭐ Rating</option>
+          </select>
+        </div>
       </div>
       <div className="flex space-x-2">
         <button onClick={() => setLocalSortOrder('asc')}
-          className={`flex-1 py-1 text-sm rounded ${sortOrder === 'asc' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100'}`}>
-          Low → High
+          className={`flex-1 py-2 text-sm rounded-xl font-medium transition-all ${sortOrder === 'asc' ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+          ↑ Low → High
         </button>
         <button onClick={() => setLocalSortOrder('desc')}
-          className={`flex-1 py-1 text-sm rounded ${sortOrder === 'desc' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100'}`}>
-          High → Low
+          className={`flex-1 py-2 text-sm rounded-xl font-medium transition-all ${sortOrder === 'desc' ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+          ↓ High → Low
         </button>
       </div>
     </div>
