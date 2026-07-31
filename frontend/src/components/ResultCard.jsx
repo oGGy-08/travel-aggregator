@@ -149,12 +149,18 @@ export default function ResultCard({ result, type, onAddToPackage }) {
               <div><span className="text-gray-500">Currency:</span> <span className="font-medium">{result.price_currency}</span></div>
             )}
           </div>
-          {result.booking_url && (
-            <a href={result.booking_url} target="_blank" rel="noopener noreferrer"
-              className="inline-block mt-2 text-xs text-primary-600 hover:text-primary-800 font-medium">
-              Book on {result.provider} →
-            </a>
-          )}
+          <div className="flex items-center space-x-3 mt-3">
+            {result.booking_url && (
+              <a href={result.booking_url} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center space-x-1 bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">
+                <span>🔗</span><span>Book on {result.provider}</span>
+              </a>
+            )}
+            <button onClick={(e) => { e.stopPropagation(); onAddToPackage && onAddToPackage(result) }}
+              className="inline-flex items-center space-x-1 bg-primary-100 text-primary-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-200 transition-colors">
+              <span>📦</span><span>Add to Package</span>
+            </button>
+          </div>
         </div>
       )}
     </div>

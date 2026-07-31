@@ -1,14 +1,27 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import { login, register } from '../store/authSlice'
+import { searchFlights, searchBuses, setSearchType } from '../store/searchSlice'
+import api from '../services/api'
 
 export default function BookingPage() {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   const { user, loading, error } = useSelector((state) => state.auth)
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
+  const [searchHistory, setSearchHistory] = useState([])
+
+  useEffect(() => {
+    if (user) {
+      api.get(`/admin/search-history?user_id=${user.id}&limit=10`)
+        .then(res => setSearchHistory(res.data.history || []))
+        .catch(() => {})
+    }
+  }, [user])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -49,11 +62,34 @@ export default function BookingPage() {
           </div>
 
           <div className="border-t pt-6">
-            <h3 className="font-semibold text-gray-900 mb-4">Recent Activity</h3>
-            <div className="text-center py-8 text-gray-400">
-              <div className="text-3xl mb-2">📋</div>
-              <p>No recent activity. Start by searching for trips!</p>
-            </div>
+            <h3 className="font-semibold text-gray-900 mb-4">Recent Searches</h3>
+            {searchHistory.length === 0 ? (
+              <div className="text-center py-8 text-gray-400">
+                <div className="text-3xl mb-2">📋</div>
+                <p>No recent searches. Start by searching for trips!</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {searchHistory.map((s, i) => (
+                  <div key={i} className="flex justify-between items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => {
+                      dispatch(setSearchType(s.search_type))
+                      if (s.search_type === 'FLIGHT') dispatch(searchFlights({ origin: s.origin, destination: s.destination, departure_date: s.departure_date }))
+                      else dispatch(searchBuses({ origin: s.origin, destination: s.destination, departure_date: s.departure_date }))
+                      navigate('/search')
+                    }}>
+                    <div className="flex items-center space-x-3">
+                      <span className="text-lg">{s.search_type === 'FLIGHT' ? '✈️' : s.search_type === 'BUS' ? '🚌' : '🏨'}</span>
+                      <div>
+                        <div className="text-sm font-medium">{s.origin} → {s.destination}</div>
+                        <div className="text-xs text-gray-500">{s.departure_date} · {s.results_count} results</div>
+                      </div>
+                    </div>
+                    <span className="text-xs text-primary-600 font-medium">Search Again →</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

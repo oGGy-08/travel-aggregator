@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { logout } from '../store/authSlice'
+import useDarkMode from '../hooks/useDarkMode'
 
 export default function Navbar() {
   const { user } = useSelector((state) => state.auth)
@@ -9,6 +10,7 @@ export default function Navbar() {
   const dispatch = useDispatch()
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [darkMode, setDarkMode] = useDarkMode()
 
   const isActive = (path) => location.pathname === path
 
@@ -35,6 +37,11 @@ export default function Navbar() {
                 </span>
               )}
             </Link>
+            <button onClick={() => setDarkMode(!darkMode)}
+              className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 transition-colors"
+              title={darkMode ? 'Light mode' : 'Dark mode'}>
+              {darkMode ? '☀️' : '🌙'}
+            </button>
             {user ? (
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-sm font-bold text-primary-600">
