@@ -7,6 +7,7 @@ import ResultCard from '../components/ResultCard'
 import FilterPanel from '../components/FilterPanel'
 import SkeletonCard from '../components/SkeletonCard'
 import PriceCalendar from '../components/PriceCalendar'
+import CompareModal from '../components/CompareModal'
 
 export default function SearchResultsPage() {
   const dispatch = useDispatch()
@@ -14,6 +15,8 @@ export default function SearchResultsPage() {
   const { filteredResults, paginatedResults, loading, error, searchType, page, pageSize } = useSelector((state) => state.search)
   const { segments } = useSelector((state) => state.packages)
   const [toast, setToast] = useState(null)
+  const [compareItems, setCompareItems] = useState([])
+  const [showCompare, setShowCompare] = useState(false)
 
   const handleAddToPackage = (result) => {
     dispatch(addSegment({
@@ -80,8 +83,25 @@ export default function SearchResultsPage() {
           {!loading && (
             <div className="space-y-3">
               {(paginatedResults.length > 0 ? paginatedResults : filteredResults).map((result) => (
-                <ResultCard key={result.id} result={result} type={searchType}
-                  onAddToPackage={handleAddToPackage} />
+                <div key={result.id} className="relative">
+                  <div className="absolute top-4 left-4 z-10">
+                    <input type="checkbox"
+                      checked={compareItems.some(c => c.id === result.id)}
+                      onChange={(e) => {
+                        if (e.target.checked && compareItems.length < 3) {
+                          setCompareItems([...compareItems, result])
+                        } else {
+                          setCompareItems(compareItems.filter(c => c.id !== result.id))
+                        }
+                      }}
+                      title="Select to compare"
+                      className="w-4 h-4" />
+                  </div>
+                  <div className="pl-10">
+                    <ResultCard result={result} type={searchType}
+                      onAddToPackage={handleAddToPackage} />
+                  </div>
+                </div>
               ))}
             </div>
           )}
@@ -105,6 +125,28 @@ export default function SearchResultsPage() {
           )}
         </div>
       </div>
+
+      {/* Compare bar */}
+      {compareItems.length > 0 && (
+        <div className="fixed top-16 left-0 right-0 bg-yellow-50 border-b border-yellow-200 p-3 z-30 animate-slide-up">
+          <div className="max-w-7xl mx-auto flex justify-between items-center">
+            <span className="text-sm font-medium text-yellow-800">
+              📊 {compareItems.length} selected for comparison
+            </span>
+            <div className="flex space-x-2">
+              <button onClick={() => setShowCompare(true)} disabled={compareItems.length < 2}
+                className="text-xs bg-yellow-600 text-white px-4 py-1.5 rounded-lg disabled:opacity-50 font-medium">
+                Compare Now
+              </button>
+              <button onClick={() => setCompareItems([])}
+                className="text-xs bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg">Clear</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Compare Modal */}
+      {showCompare && <CompareModal items={compareItems} type={searchType} onClose={() => setShowCompare(false)} />}
 
       {/* Toast notification */}
       {toast && (

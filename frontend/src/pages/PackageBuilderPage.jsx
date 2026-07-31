@@ -30,6 +30,14 @@ export default function PackageBuilderPage() {
             className="text-sm border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50">
             + Add More
           </button>
+          <button onClick={() => {
+              const data = encodeURIComponent(JSON.stringify(segments.map(s => ({t: s.segment_type, n: s.summary, p: s.price_amount}))))
+              const url = `${window.location.origin}/packages?shared=${data}`
+              navigator.clipboard.writeText(url).then(() => alert('Share link copied to clipboard!'))
+            }}
+            className="text-sm border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50" disabled={segments.length === 0}>
+            🔗 Share
+          </button>
           <button onClick={() => dispatch(clearPackage())}
             className="text-sm text-red-500 border border-red-200 px-4 py-2 rounded-lg hover:bg-red-50">
             Clear All
