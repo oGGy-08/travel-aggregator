@@ -7,9 +7,11 @@ import os
 db = SQLAlchemy()
 ma = Marshmallow()
 
+_redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
 redis_client = redis.Redis.from_url(
-    os.getenv('REDIS_URL', 'redis://localhost:6379/0'),
-    decode_responses=True
+    _redis_url,
+    decode_responses=True,
+    ssl=True if _redis_url.startswith('rediss://') else False
 )
 
 celery_app = Celery('travel_aggregator')
