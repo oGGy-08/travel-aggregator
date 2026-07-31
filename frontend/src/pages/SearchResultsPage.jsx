@@ -30,23 +30,34 @@ export default function SearchResultsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
+      {/* Mobile filter button */}
+      <div className="lg:hidden mb-4">
+        <button onClick={() => document.getElementById('mobile-filters').classList.toggle('hidden')}
+          className="w-full flex items-center justify-center space-x-2 bg-white border border-gray-200 rounded-xl py-3 text-sm font-medium text-gray-700 hover:bg-gray-50">
+          <span>⚙️</span><span>Filters & Sort</span>
+        </button>
+        <div id="mobile-filters" className="hidden mt-3 animate-slide-up">
+          <FilterPanel />
+        </div>
+      </div>
+
       <div className="flex gap-6">
-        <aside className="w-72 flex-shrink-0 hidden lg:block sticky top-4 self-start">
+        <aside className="w-72 flex-shrink-0 hidden lg:block sticky top-20 self-start max-h-[calc(100vh-6rem)] overflow-y-auto">
           <FilterPanel />
         </aside>
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-lg md:text-xl font-semibold text-gray-900">
               {loading ? 'Searching best prices...' : `${filteredResults.length} results found`}
             </h2>
-            <span className="text-sm text-white bg-primary-500 px-3 py-1 rounded-full font-medium">
+            <span className="text-xs md:text-sm text-white bg-primary-500 px-3 py-1 rounded-full font-medium">
               {searchType}
             </span>
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-4 flex items-center space-x-2">
+            <div className="bg-red-50 border border-red-200 text-red-700 p-3 md:p-4 rounded-lg mb-4 flex items-center space-x-2 text-sm">
               <span>⚠️</span><span>{error}</span>
             </div>
           )}
