@@ -35,6 +35,12 @@ class ProductionConfig(BaseConfig):
             url = url.replace('mysql://', 'mysql+pymysql://', 1)
         return url
 
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'connect_args': {
+            'ssl': {'ca': '/etc/ssl/certs/ca-certificates.crt'}
+        }
+    }
+
 
 class TestingConfig(BaseConfig):
     TESTING = True
