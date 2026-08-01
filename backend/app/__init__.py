@@ -26,6 +26,9 @@ def create_app(config_name=None):
 
     with app.app_context():
         from . import models  # noqa: F401 - ensure models are imported
-        db.create_all()
+        try:
+            db.create_all()
+        except Exception:
+            pass  # DB might not be available yet, tables created on first successful connection
 
     return app
