@@ -27,13 +27,10 @@ class DevelopmentConfig(BaseConfig):
 class ProductionConfig(BaseConfig):
     DEBUG = False
 
-    @property
-    def SQLALCHEMY_DATABASE_URI(self):
-        url = os.getenv('DATABASE_URL', '')
-        # Railway gives mysql:// but SQLAlchemy needs mysql+pymysql://
-        if url.startswith('mysql://'):
-            url = url.replace('mysql://', 'mysql+pymysql://', 1)
-        return url
+    _db_url = os.getenv('DATABASE_URL', '')
+    if _db_url.startswith('mysql://'):
+        _db_url = _db_url.replace('mysql://', 'mysql+pymysql://', 1)
+    SQLALCHEMY_DATABASE_URI = _db_url
 
     SQLALCHEMY_ENGINE_OPTIONS = {
         'connect_args': {
